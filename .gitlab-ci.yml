@@ -8,6 +8,7 @@ pages:
   - mkdir .public
   - cp -r * .public
   - mv .public public
+  - npm install
   - ./node_modules/.bin/webpack --progress -p
   - cp index.html ./public
   - cp app.js  ./public

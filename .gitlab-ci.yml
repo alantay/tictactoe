@@ -1,6 +1,5 @@
 image: node:4.2.2
 pages:
-    stage: deploy
     script:
     - npm install
     - ./node_modules/.bin/webpack --progress -p

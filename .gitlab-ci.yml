@@ -1,8 +1,10 @@
-image: node:4.2.2
+image: alpine:latest
 pages:
-    stage: deploy
-    script:
-    - npm install
-    - ./node_modules/.bin/webpack --progress -p
-    only: 
-    - master
+  stage: deploy
+  script:
+  - echo 'Nothing to do...'
+  artifacts:
+    paths:
+    - public
+  only:
+  - master

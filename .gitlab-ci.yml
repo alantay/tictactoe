@@ -4,11 +4,15 @@ pages:
   cache:
     paths:
     - node_modules/
-
   script:
-  - npm install
+  - mkdir .public
+  - cp -r * .public
+  - mv .public public
+  - ./node_modules/.bin/webpack --progress -p
+  - cp index.html ./public
+  - cp app.js  ./public
   artifacts:
     paths:
-    - ./
+    - public
   only:
     - master

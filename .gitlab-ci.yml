@@ -1,5 +1,11 @@
 image: node:4.2.2
-all_tests:
+pages:
+    stage: deploy
     script:
     - npm install
-    - ./node_modules/.bin/webpack-dev-server 
+    - ./node_modules/.bin/webpack --progress -p
+    artifacts:
+    paths:
+    - public
+    only: 
+    - master

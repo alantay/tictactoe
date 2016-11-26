@@ -1,3 +1,5 @@
+var webpack = require('webpack')
+
 module.exports = {
     entry: [
         './src/App.js'
@@ -15,5 +17,13 @@ module.exports = {
                 presets: ['es2015','react']
             }
         }]
-    }
+    },
+    plugins: [
+       new webpack.DefinePlugin({
+         'process.env': {
+           'NODE_ENV': '"production"'
+         }
+       }),
+       new webpack.optimize.UglifyJsPlugin()
+    ]
 };

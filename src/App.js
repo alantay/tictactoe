@@ -214,7 +214,7 @@ class Game extends React.Component {
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
-					<button onClick={() => this.aiTurn()}>Let Computer go first</button>
+					<button className={history.length} onClick={() => this.aiTurn()}>Let Computer go first</button>
 					<ol>{}</ol>
 				</div>
 			</div>

@@ -1,1 +1,3 @@
-
+install_npm:
+	script:
+	- npm install

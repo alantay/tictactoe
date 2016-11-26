@@ -4,8 +4,5 @@ pages:
     script:
     - npm install
     - ./node_modules/.bin/webpack --progress -p
-    artifacts:
-    paths:
-    - public
     only: 
     - master

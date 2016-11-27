@@ -1,22 +1,6 @@
 import React from 'react';
 import {render} from 'react-dom';
 
-// class Square extends React.Component {
-//   constructor(){
-//     super();
-//     this.state = {
-//       value: null
-//     };
-//   }
-//   render() {
-//     return (
-//       <button className="square" onClick={this.props.onClick()}>
-//         {this.props.value}
-//       </button>
-//     );
-//   }
-// }
-
 const lines = [
 	[0, 1, 2],
 	[3, 4, 5],
@@ -26,6 +10,24 @@ const lines = [
 	[2, 5, 8],
 	[0, 4, 8],
 	[2, 4, 6],
+];
+
+const computerStartStr = [
+	"Let the super smart AI go first.",
+	"I'm too wussy to start first. AI please go ahead.",
+	"Let AI go first, I'm gonna lose either way."
+];
+
+const computerWin = [
+	"Wow, you're bad at this.",
+	"Maybe you're the one with 'artificial' intelligence...",
+	"LOL. NOOB! EASY GAME."
+];
+
+const computerDraw = [
+	"Yea this is the furthest you can go. A draw.",
+	"Next time, try winning... you wouldn't cut it with a draw.",
+	"You couldn't even win an AI built with just a few line of codes?"
 ];
 
 // Heuristic
@@ -75,7 +77,7 @@ class Game extends React.Component {
 	constructor() {
 		super();
 
-		let count = 0;
+
 		this.state = {
 			history: [{
 				squares: Array(3*3).fill(null)
@@ -84,6 +86,8 @@ class Game extends React.Component {
 			stepNumber: 0,
 		};
 	}
+
+
 	jumpTo(step) {
 	  this.setState({
 		stepNumber: step,
@@ -109,7 +113,7 @@ class Game extends React.Component {
 		//wrapped in setTimeout due to long computation, thus have to make it async
 		
 		setTimeout(()=> {
-			const computed = this.minimax(squares, this.state.xIsNext, 5);
+			const computed = this.minimax(squares, this.state.xIsNext, 2, Number.MIN_SAFE_INTEGER, Number.MAX_SAFE_INTEGER);
 			squares[computed.bestMove] = "O";
 			this.setState({
 				history: history.concat([{
@@ -121,51 +125,43 @@ class Game extends React.Component {
 		},0);
 	}
 
-	minimax(squares, isPlayerX, depth){
+	minimax(squares, isPlayerX, depth, alpha ,beta){
 		let possibleMoves = generateMoves(squares);
-		let bestMove, bestScore;
-		if(possibleMoves.length == 0 || depth == 0) {
-			// console.log(squares+"  "+evalBoard(squares));
+		let bestMove = null;
+		// let bestScore = isPlayerX? Number.MAX_SAFE_INTEGER:Number.MIN_SAFE_INTEGER;
+		if(possibleMoves.length == 0) {
 			return {bestMove:null,bestScore: evalBoard(squares)};
 		}
+		for(let m = 0; m < possibleMoves.length; m++){
+			// Player O's turn
+			if(!isPlayerX){ 
+					let cell = possibleMoves[m];
+					let tempSquares = squares.slice();	
+					tempSquares[cell] = "O";
+					let result = this.minimax(tempSquares, true, depth-1, alpha, beta);
 
-		// Player O's turn
-		if(!isPlayerX){ 
-			// console.log('plater o');
-			bestScore = Number.MIN_SAFE_INTEGER;
-			bestMove = null;
-			for(let m = 0; m < possibleMoves.length; m++){
-				let cell = possibleMoves[m];
-				let tempSquares = squares.slice();	
-				tempSquares[cell] = "O";
-				let result = this.minimax(tempSquares, true, depth-1);
-				if(bestScore < result.bestScore){
-					
-					bestMove = cell;
-					bestScore = result.bestScore;
-				}
+					if(alpha < result.bestScore){
+						alpha = result.bestScore;
+						bestMove = cell;
+					}
 			}
-			// return {bestMove, bestScore}
+
+			// Player X's turn
+			if(isPlayerX){ 
+
+					let cell = possibleMoves[m];
+					let tempSquares = squares.slice();	
+					tempSquares[cell] = "X";
+					let result = this.minimax(tempSquares, false, depth-1,alpha, beta);
+					if(beta > result.bestScore){
+						bestMove = cell;
+						beta = result.bestScore;
+					}
+			}
+			if(alpha>=beta) break;
 		}
 
-		// Player X's turn
-		if(isPlayerX){ 
-			// console.log('plater x');
-			bestScore = Number.MAX_SAFE_INTEGER;
-			bestMove = null;
-			for(let m = 0; m < possibleMoves.length; m++){
-				let cell = possibleMoves[m];
-				let tempSquares = squares.slice();	
-				tempSquares[cell] = "X";
-				let result = this.minimax(tempSquares, false, depth-1);
-				if(bestScore > result.bestScore){
-					bestMove = cell;
-					bestScore = result.bestScore;
-				}
-			}
-			// return {bestMove, bestScore}
-		}
-		return {bestMove, bestScore}
+		return {bestMove, bestScore:(isPlayerX ? beta:alpha)}
 
 	}
 
@@ -199,10 +195,10 @@ class Game extends React.Component {
 		const current = history[this.state.stepNumber];
 		const winner = calculateWinner(current.squares);
 		const moves = history.map((step, move) => {
-		const desc = move ?
-			'Move #' + move :
-			'Game start';
-		return (
+			const desc = move ?
+				'Move #' + move :
+				'Game start';
+			return (
 			<li key={move}>
 			  <a href="#" onClick={() => this.jumpTo(move)}>{desc}</a>
 			</li>
@@ -210,9 +206,17 @@ class Game extends React.Component {
 		});
 		let status;
 		if (winner) {
-		  status = 'Winner: ' + winner;
+		  // status = 'Winner: ' + winner;
+		  status = computerWin[Math.floor(Math.random() * computerWin.length)];
 		} else {
-		  status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+		   // status = current
+		   status = "";
+		   if(current.squares.indexOf(null) == -1){
+
+		   		status = computerDraw[Math.floor(Math.random() * computerDraw.length)]
+		   }
+		   
+		   
 		}
 
 		return (
@@ -225,7 +229,7 @@ class Game extends React.Component {
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
-					<button className={(history.length>1)?"hide":""} onClick={()=>this.aiTurn()}>Let Computer go first</button>
+					<button className={(history.length>1)?"hide":""} onClick={()=>this.aiTurn()}>{computerStartStr[Math.floor(Math.random() * computerStartStr.length)]}</button>
 					<button className={(history.length>1)?"":"hide"} onClick={()=>this.resetGame()}>Reset Game</button>
 					<ol>{}</ol>
 				</div>

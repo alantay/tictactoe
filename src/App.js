@@ -74,12 +74,11 @@ function Board(props){
 class Game extends React.Component {
 	constructor() {
 		super();
-		const ROWS = 3;
-		const COLS = 3;
+
 		let count = 0;
 		this.state = {
 			history: [{
-				squares: Array(ROWS*COLS).fill(null)
+				squares: Array(3*3).fill(null)
 			}],
 			xIsNext: true,
 			stepNumber: 0,
@@ -92,6 +91,16 @@ class Game extends React.Component {
 	  });
 	}
 
+	resetGame(){
+		this.setState({
+			history: [{
+				squares: Array(3*3).fill(null)
+			}],
+			xIsNext: true,
+			stepNumber: 0,
+		});
+	}
+
 	aiTurn(){ 
 		const history = this.state.history;
 		const current = history[history.length-1];
@@ -100,7 +109,7 @@ class Game extends React.Component {
 		//wrapped in setTimeout due to long computation, thus have to make it async
 		
 		setTimeout(()=> {
-			const computed = this.minimax(squares, this.state.xIsNext, 2);
+			const computed = this.minimax(squares, this.state.xIsNext, 5);
 			squares[computed.bestMove] = "O";
 			this.setState({
 				history: history.concat([{
@@ -114,6 +123,7 @@ class Game extends React.Component {
 
 	minimax(squares, isPlayerX, depth){
 		let possibleMoves = generateMoves(squares);
+		let bestMove, bestScore;
 		if(possibleMoves.length == 0 || depth == 0) {
 			// console.log(squares+"  "+evalBoard(squares));
 			return {bestMove:null,bestScore: evalBoard(squares)};
@@ -122,8 +132,8 @@ class Game extends React.Component {
 		// Player O's turn
 		if(!isPlayerX){ 
 			// console.log('plater o');
-			let bestScore = Number.MIN_SAFE_INTEGER;
-			let bestMove = null;
+			bestScore = Number.MIN_SAFE_INTEGER;
+			bestMove = null;
 			for(let m = 0; m < possibleMoves.length; m++){
 				let cell = possibleMoves[m];
 				let tempSquares = squares.slice();	
@@ -135,14 +145,14 @@ class Game extends React.Component {
 					bestScore = result.bestScore;
 				}
 			}
-			return {bestMove, bestScore}
+			// return {bestMove, bestScore}
 		}
 
 		// Player X's turn
 		if(isPlayerX){ 
 			// console.log('plater x');
-			let bestScore = Number.MAX_SAFE_INTEGER;
-			let bestMove = null;
+			bestScore = Number.MAX_SAFE_INTEGER;
+			bestMove = null;
 			for(let m = 0; m < possibleMoves.length; m++){
 				let cell = possibleMoves[m];
 				let tempSquares = squares.slice();	
@@ -153,8 +163,9 @@ class Game extends React.Component {
 					bestScore = result.bestScore;
 				}
 			}
-			return {bestMove, bestScore}
+			// return {bestMove, bestScore}
 		}
+		return {bestMove, bestScore}
 
 	}
 
@@ -214,7 +225,8 @@ class Game extends React.Component {
 				</div>
 				<div className="game-info">
 					<div>{status}</div>
-					<button className={history.length} onClick={() => this.aiTurn()}>Let Computer go first</button>
+					<button className={(history.length>1)?"hide":""} onClick={()=>this.aiTurn()}>Let Computer go first</button>
+					<button className={(history.length>1)?"":"hide"} onClick={()=>this.resetGame()}>Reset Game</button>
 					<ol>{}</ol>
 				</div>
 			</div>
